@@ -12,8 +12,20 @@
 #    License for the specific language governing permissions and limitations
 #    under the License.
 
+# TODO
+# возможно имеет смысл засунуть url для libvirt в json
+# а url для ssh брать из него же
+# восстановление сетей libvirt кажется не нужно
+# если не пригодится, удалю из кода
+
 import libvirt
 import json
+import os
+
+
+def set_env(ip):
+    "export POOL_PUBLIC=‘172.16.0.0/24:24’"
+    os.environ['POOL_PUBLIC'] = ip
 
 
 def restore_snpsht(conn, domain, snapname):
@@ -23,16 +35,40 @@ def restore_snpsht(conn, domain, snapname):
     d.revertToSnapshot(s)
 
 
+def start_net(conn, name):
+    "start predefined network"
+    print "start_net: conn is {} and name is {}".format(conn, name)
+    if not name == "":
+        net = conn.networkLookupByName(name)
+        if not net.isActive():
+            net.create()
+
+
+def build_iface(url, br, iface, ip, vlan):
+    os.system("ssh {} sudo vconfig rem {}.{}".format(url, iface, vlan))
+    os.system("ssh {} sudo vconfig add {} {}".format(url, iface, vlan))
+    os.system("ssh {} sudo ip l set {} down".format(url, br))
+    os.system("ssh {} sudo brctl delbr {}".format(url, br))
+    os.system("ssh {} sudo brctl addbr {}".format(url, br))
+    os.system("ssh {} sudo brctl addif {} {}.{}".format(url, br, iface, vlan))
+    os.system("ssh {} sudo ip a a {} dev {}".format(url, ip, br))
+
+
 def restore_env(name, fl):
     return json.load(open(fl, "r"))[name]
 
 
 def restore(conn, env):
     """Get list of domains and snapshots of them
-    restore domains to shanpshots
+    restore domains to shanpshots, also start networks
     """
-    for d, s in env:
-        restore_snpsht(conn, d, s)
+    if len(env['networks']) > 0:
+        for n in env['networks']:
+            start_net(conn, n['network'])
+            build_iface(n['host'], n['bridge'], n['iface'], n['ip'], n['vlan'])
+    if len(env['snapshots']) > 0:
+        for d, s in env['snapshots']:
+            restore_snpsht(conn, d, s)
 
 
 def connect(url):
