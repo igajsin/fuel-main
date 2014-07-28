@@ -70,6 +70,7 @@ def restore(conn, env):
         for d, s in env['snapshots']:
             restore_snpsht(conn, d, s)
 
+
 def connect(url):
     "Connect to libvirt"
     try:
