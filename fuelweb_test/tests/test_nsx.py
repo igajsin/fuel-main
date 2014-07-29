@@ -55,4 +55,4 @@ class NsxDeploy(TestBasic):
             cluster_id=cluster_id, test_sets=['smoke'],
             test_name=('fuel_health.tests.smoke.'
                        'test_nova_create_instance_with_connectivity.'
-                       'TestNovaNetwork.test_004_create_servers'))
+                       'TestNovaNetwork.test_008_check_public_instance_connectivity_from_instance'))
