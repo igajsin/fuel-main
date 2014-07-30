@@ -1,4 +1,5 @@
 import proboscis
+from proboscis.asserts import assert_equal
 
 from fuelweb_test.helpers.decorators import log_snapshot_on_error
 from fuelweb_test.tests.base_test_case import SetupEnvironment
@@ -41,12 +42,17 @@ class NsxDeploy(TestBasic):
                 'nsx_controllers': '172.16.1.253',
                 'packages_url': '172.16.1.1',
                 'connector_type': 'stt',
-                'tenant': 'novaSimpleFlat',
-                'user': 'novaSimpleFlat',
-                'password': 'novaSimpleFlat'
+                'tenant': 'nsx',
+                'user': 'nsx',
+                'password': 'nsx',
+                'net_provider': 'neutron',
+                'net_l23_provider': 'nsx',
+                'net_segment_type': 'gre'
             },
             release_name=help_data.OPENSTACK_RELEASE
         )
+        assert_equal(str(cluster['net_provider']), 'neutron')
+        
         logger.info('cluster is %s' % str(cluster_id))
         self.fuel_web.update_nodes(
             cluster_id,
