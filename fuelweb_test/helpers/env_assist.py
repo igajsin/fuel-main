@@ -1,3 +1,7 @@
+#!/usr/bin/python 
+# -*- coding: utf-8 -*-
+
+
 #    Copyright 2013 Mirantis, Inc.
 #
 #    Licensed under the Apache License, Version 2.0 (the "License"); you may
@@ -12,13 +16,8 @@
 #    License for the specific language governing permissions and limitations
 #    under the License.
 
-# TODO
-# возможно имеет смысл засунуть url для libvirt в json
-# а url для ssh брать из него же
-# восстановление сетей libvirt кажется не нужно
-# если не пригодится, удалю из кода
-
 import libvirt
+import sys
 import json
 import os
 
@@ -87,3 +86,18 @@ def make_env(name, url="qemu:///system", fl="env.json"):
     wrk = restore_env(name, fl)
     restore(conn, wrk)
     return 0
+
+if __name__ == "__main__":
+    try:
+        name = sys.argv[1]
+    except:
+        print 'Your must set name of Env'
+    try:
+        url = sys.argv[2]
+    except:
+        url = "qemu:///system"
+    try:
+        fl = sys.argv[3]
+    except:
+        fl = "env.json"
+    make_env(name, url, fl)
