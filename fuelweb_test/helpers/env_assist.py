@@ -89,15 +89,9 @@ def make_env(name, url="qemu:///system", fl="env.json"):
 
 if __name__ == "__main__":
     try:
-        name = sys.argv[1]
+        url = sys.argv[1]
+        domain = sys.argv[2]
+        snapname = sys.argv[3]
     except:
-        print 'Your must set name of Env'
-    try:
-        url = sys.argv[2]
-    except:
-        url = "qemu:///system"
-    try:
-        fl = sys.argv[3]
-    except:
-        fl = "env.json"
-    make_env(name, url, fl)
+        print 'Your must set url, domain, snapshot'
+    restore_snpsht(connect(url), domain, snapname)
